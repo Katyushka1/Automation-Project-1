@@ -8,21 +8,50 @@ Assignement 4: add content to the following tests
 
 describe('Section 1: Functional tests', () => {
 
-    it('User can use only same both first and validation passwords', ()=>{
+    it.only('User can use only same both first and validation passwords', () => {
         // Add test steps for filling in only mandatory fields
         // Type confirmation password which is different from first password
         // Assert that submit button is not enabled
         // Assert that successful message is not visible
         // Assert that error message is visible
+
+        cy.get('#username').type('johnDoe')
+        cy.get('#email').should('have.attr', 'pattern').should('contain', 'a-z0-9')
+        cy.get('[title="Add first name"]').type('John')
+        cy.get('[title="Add last name"]').type('Doe')
+        cy.get('[data-testid="phoneNumberTestId"]').type('555666777')
+        cy.get('input[name="password"]').type('London123')
+        cy.get('[name="confirm"]').type('London123123')
+        cy.get('[name="confirm"]').type('{enter}')
+        cy.get('h2').contains('Password').click()
+        cy.window().scrollTo('bottom')
+        cy.get('#password_error_message').should('be.visible').should('contain', 'Passwords do not match!')
+        cy.get('#success_message').should('not.be.visible')
+        cy.get('.submit_button').should('be.disabled')
+
+        // Assert that password confirmation input fields has attribute 'title' with text stating 'Both passwords should match'
+        cy.get('input[name="confirm"]').should('have.attr', 'title', 'Both passwords should match')
     })
-    
-    it('User can submit form with all fields added', ()=>{
+
+    it('User can submit form with all fields added', () => {
         // Add test steps for filling in ALL fields
         // Assert that submit button is enabled
         // Assert that after submitting the form system show successful message
+
+        cy.get('[data-testid="phoneNumberTestId"]').type('555666777')
+        cy.get('#firstName').type('Shaun')
+        cy.get('#lastName').type('TheSheep')
+        cy.get('input[name="password"]').type('London123')
+        cy.get('[name="confirm"]').type('London123')
+        cy.get('#username').type('Something')
+
+        // Asserting that Submit button is enabled
+        cy.get('.submit_button').should('be.enabled')
+        // Assert that success message is visible
+        cy.get('#success_message').should('be.visible')
     })
 
-    it('User can submit form with valid data and only mandatory fields added', ()=>{
+    it('User can submit form with valid data and only mandatory fields added', () => {
         // Add test steps for filling in ONLY mandatory fields
         // Assert that submit button is enabled
         // Assert that after submitting the form system shows successful message
@@ -45,7 +74,7 @@ describe('Section 2: Visual tests', () => {
         cy.get('img').should('have.attr', 'src').should('include', 'cerebrum_hub_logo')
         // get element and check its parameter height, to less than 178 and greater than 100
         cy.get('img').invoke('height').should('be.lessThan', 178)
-            .and('be.greaterThan', 100)   
+            .and('be.greaterThan', 100)
     })
 
     it('My test for second picture', () => {
@@ -57,15 +86,15 @@ describe('Section 2: Visual tests', () => {
 
         // Get navigation element, find siblings that contains h1 and check if it has Registration form in string
         cy.get('nav').siblings('h1').should('have.text', 'Registration form number 2')
-        
+
         // Get navigation element, find its first child, check the link content and click it
         cy.get('nav').children().eq(0).should('be.visible')
             .and('have.attr', 'href', 'registration_form_1.html')
             .click()
-        
+
         // Check that currently opened URL is correct
         cy.url().should('contain', '/registration_form_1.html')
-        
+
         // Go back to previous page
         cy.go('back')
         cy.log('Back again in registration form 2')
@@ -78,10 +107,10 @@ describe('Section 2: Visual tests', () => {
         cy.get('input[type="radio"]').should('have.length', 4)
 
         // Verify labels of the radio buttons
-        cy.get('input[type="radio"]').next().eq(0).should('have.text','HTML')
-        cy.get('input[type="radio"]').next().eq(1).should('have.text','CSS')
-        cy.get('input[type="radio"]').next().eq(2).should('have.text','JavaScript')
-        cy.get('input[type="radio"]').next().eq(3).should('have.text','PHP')
+        cy.get('input[type="radio"]').next().eq(0).should('have.text', 'HTML')
+        cy.get('input[type="radio"]').next().eq(1).should('have.text', 'CSS')
+        cy.get('input[type="radio"]').next().eq(2).should('have.text', 'JavaScript')
+        cy.get('input[type="radio"]').next().eq(3).should('have.text', 'PHP')
 
         //Verify default state of radio buttons
         cy.get('input[type="radio"]').eq(0).should('not.be.checked')
@@ -107,10 +136,10 @@ describe('Section 2: Visual tests', () => {
         // Next 2 lines of code do exactly the same!
         cy.get('#cars').children().should('have.length', 4)
         cy.get('#cars').find('option').should('have.length', 4)
-        
+
         //Check  that first element in the dropdown has text Volvo
         cy.get('#cars').find('option').eq(0).should('have.text', 'Volvo')
-        
+
         // Advanced level how to check the content of the Cars dropdown
         cy.get('#cars').find('option').then(options => {
             const actual = [...options].map(option => option.value)
